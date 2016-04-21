@@ -228,7 +228,7 @@
     function apply(o, o2) {
         for (var name in o) {
             if (o.hasOwnProperty(name)) {
-                    o2[name] = o[name];
+                o2[name] = o[name];
             }
         }
         return o2;
