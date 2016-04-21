@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SceneJS Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+
+    <script src="api/latest/scenejs.js"></script>
+    <script src="js/pipeline.js"></script>
+    <script src="js/colorize.js"></script>
+    <script src="js/dof.js"></script>
+
+</head>
+<body>
+
+<script>
+
+    //-----------------------------------------------------------------------------------------------------------------
+    // Demo of the "cameras/orbit" node type, which orbits the eye about a point of interest
+    //-----------------------------------------------------------------------------------------------------------------
+
+    // Point SceneJS to the bundled plugins
+    SceneJS.setConfigs({
+        pluginPath: "api/latest/plugins"
+    });
+
+    // Create scene
+    var scene = SceneJS.createScene({
+        nodes: [
+
+            // Mouse-orbited camera,
+            // implemented by plugin at http://scenejs.org/api/latest/plugins/node/cameras/orbit.js
+            {
+                type: "cameras/orbit",
+                yaw: 40,
+                pitch: -20,
+                zoom: 10,
+                zoomSensitivity: 1.0,
+                eye: {x: 0, y: 0, z: 10},
+                look: {x: 0, y: 0, z: 0},
+                spin: true,
+
+                nodes: [
+                    {
+                        type: "node",
+                        id: "effectsRoot",
+
+                        nodes: [
+
+                            // Teapot primitive,
+                            // implemented by plugin at http://scenejs.org/api/latest/plugins/node/geometry/teapot.js
+                            {
+                                type: "geometry/teapot"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    });
+
+    scene.getNode("effectsRoot",
+            function (effectsRoot) {
+
+                var effects = new SceneJS.fx.Pipeline(effectsRoot);
+
+                window.effects = effects; // For console tweaking
+
+                effects.add("colorize", new SceneJS.fx.Colorize());
+                effects.add("dof", new SceneJS.fx.DOF());
+
+                effects.set({
+                    effects: {
+                        colorize: {
+                            active: true,
+                            color: {r: 1, g: 1, b: 0}
+                        },
+                        dof: {
+                            active: true,
+                            texelSize: [0.00099, 0.00099], // Size of one texel (1 / width, 1 / height)
+                            blurCoeff: 0.0011,  // Calculated from the blur equation, b = ( f * ms / N )
+                            focusDist: 50.0,	// The distance to the subject in perfect focus (= Ds)
+                            ppm: 10000         // Pixels per millimetre
+                        }
+                    }
+                })
+            });
+
+
+</script>
+</body>
+</html>
